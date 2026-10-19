@@ -37,12 +37,13 @@ containers:
   - name: app
     image: "ghcr.io/doronaviguy/enclave-app-1:v0.1.0@sha256:4b490b396d078be294bce63fd8b4a7add04c4447ce02f850f981d633f9f5dd5f"
     networks: [egress]
+    # Read-only root filesystem with no writable scratch space: the dry-run and
+    # its scorer need none (checked with the v0.1.0 image), and Tinfoil's
+    # validator rejects a list-form `tmpfs`.
     read_only: true
-    tmpfs:
-      - /tmp
     env:
-      - DRYRUN_RELEASE_TAG: "v0.1.0"
-      - DRYRUN_CONFIG_COMMITMENT: "0xd58dc817f90ad17cfbfcfe6c89702e49fbb3345cc70c8fe8707ebcee0a2c73da"
+      - DRYRUN_RELEASE_TAG: "v0.1.1"
+      - DRYRUN_CONFIG_COMMITMENT: "0xaaa78a9352560efb21b6644533447310954c96d43c6153ded3dff9e72043c3e9"
       - DRYRUN_LISTEN_ADDR: "0.0.0.0:8090"
       - DRYRUN_REPO_PATH: "/app"
     secrets:
