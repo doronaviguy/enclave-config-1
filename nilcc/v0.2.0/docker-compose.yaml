@@ -1,0 +1,41 @@
+# nilCC docker-compose template for the co-signer dry-run.
+#
+# deploy-nilcc.sh renders this into the PUBLIC config repo (nilcc/<tag>/).
+# nilCC hashes the rendered file and that hash is part of the attestation
+# measurement, so every literal value below is measured and visible to
+# everyone. It therefore carries no private setting:
+#
+# - Hidden settings (API URL, Telegram chat ID, lane-file URL and lane key)
+#   travel as the nilCC environment variable DRYRUN_SECRET_CONFIG, which nilCC
+#   keeps out of the measurement. Only its salted sha256 is measured, as
+#   DRYRUN_CONFIG_COMMITMENT; the binary refuses to start unless the two
+#   match, so a hidden change is still a new release and key.
+# - The Telegram bot token is its own nilCC environment variable (a credential
+#   only: it can suppress messages, never forge a signed result).
+# - Lanes live in lanes.enc in the config repo, AES-256-GCM encrypted, and are
+#   re-read every DRYRUN_LANES_REFRESH (default 10 minutes) with no restart.
+#
+# The two ${DRYRUN_SECRET_*} references are interpolated by docker compose
+# from nilCC's .env at boot; the literal reference text is what is measured.
+# Only those two names are passed through, so nothing else in .env can reach
+# the container.
+#
+# The @-delimited placeholders are filled by deploy-nilcc.sh.
+
+services:
+  app:
+    image: "ghcr.io/doronaviguy/enclave-app-1:v0.2.0@sha256:e2e8c655571ec3d2603ba4e9291304dab3cce048260859accb2628962cab6370"
+    # Read-only root filesystem: the dry-run and its scorer write nothing.
+    read_only: true
+    restart: unless-stopped
+    environment:
+      DRYRUN_RELEASE_TAG: "v0.2.0"
+      DRYRUN_CONFIG_COMMITMENT: "0x59fb7c37cae0999287879968cf05d894b23bc190cbada09e07d7a55d1723910a"
+      DRYRUN_PLATFORM: "nilcc"
+      DRYRUN_LISTEN_ADDR: "0.0.0.0:8090"
+      DRYRUN_REPO_PATH: "/app"
+      DRYRUN_SECRET_CONFIG: "${DRYRUN_SECRET_CONFIG}"
+      DRYRUN_SECRET_TELEGRAM_BOT_TOKEN: "${DRYRUN_SECRET_TELEGRAM_BOT_TOKEN}"
+    # nilCC's Caddy proxies every path to this container (publicContainerPort
+    # 8090). A sealed deployment serves only /health and /identity; the
+    # attestation itself is at /nilcc/api/v2/report, served by nilCC.

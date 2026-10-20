@@ -1,0 +1,14 @@
+{
+  "artifactsVersion": "0.4.2",
+  "composeSha256": "7c216e2cd812f211de076885450a5193d1c72e3460deba3b556cf8def9bd6072",
+  "configCommitment": "0x59fb7c37cae0999287879968cf05d894b23bc190cbada09e07d7a55d1723910a",
+  "cpus": 2,
+  "diskGb": 20,
+  "image": "ghcr.io/doronaviguy/enclave-app-1:v0.2.0@sha256:e2e8c655571ec3d2603ba4e9291304dab3cce048260859accb2628962cab6370",
+  "memoryMb": 8192,
+  "platform": "nilcc",
+  "publicContainer": "app",
+  "publicPort": 8090,
+  "sourceCommit": "36cd553c1195acefb7a2a21d7da1adf70f42bb7a",
+  "tag": "v0.2.0"
+}
