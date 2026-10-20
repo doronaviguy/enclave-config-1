@@ -1,0 +1,52 @@
+# Co-signer dry-run image for Evervault Enclaves (AWS Nitro).
+#
+# `ev enclave build --reproducible` turns this into an Enclave Image File whose
+# PCR0/1/2 measure the whole image, including every ENV below. So the measured
+# settings (release tag, sealed-settings commitment, platform, key mode, price
+# source) are baked in as build args: one tag = one image = one set of PCRs.
+#
+# deploy-evervault.sh builds from a context it stages with `git archive` at a
+# clean commit (shared/, backend/ and the scorer only), so anyone can rebuild
+# the same tree with the same build args and compare PCRs. Every file in that
+# context carries the commit time, and the binary is stamped with it too.
+#
+# Secrets (DRYRUN_SECRET_CONFIG, DRYRUN_SECRET_TELEGRAM_BOT_TOKEN) are Evervault
+# encrypted environment variables, injected at boot and not measured; the
+# binary refuses DRYRUN_SECRET_CONFIG unless it matches the measured commitment.
+
+# golang:1.25.6-bookworm, cross-compiling to linux/amd64 (Nitro hosts are x86).
+FROM --platform=$BUILDPLATFORM golang@sha256:f4490d7b261d73af4543c46ac6597d7d101b6e1755bcdd8c5159fda7046b6b3e AS build
+ARG SOURCE_DATE_EPOCH=0
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOWORK=off GOFLAGS=-mod=readonly
+WORKDIR /src
+COPY shared/go.mod shared/go.sum ./shared/
+COPY backend/go.mod backend/go.sum ./backend/
+RUN cd backend && go mod download
+COPY shared/ ./shared/
+COPY backend/ ./backend/
+RUN cd backend && go build -trimpath -buildvcs=false -ldflags="-s -w -buildid=" \
+      -o /out/cosigner-dryrun ./cmd/cosigner-dryrun \
+ && touch -d "@${SOURCE_DATE_EPOCH}" /out/cosigner-dryrun
+
+# python:3.12.11-slim-bookworm (the deterministic scorer is standard-library only)
+FROM python@sha256:519591d6871b7bc437060736b9f7456b8731f1499a57e22e6c285135ae657bf7
+ARG DRYRUN_RELEASE_TAG
+ARG DRYRUN_CONFIG_COMMITMENT
+ARG DRYRUN_PRICE_SOURCE=binance-spot
+COPY --from=build /out/cosigner-dryrun /app/cosigner-dryrun
+COPY skills/analyze-perpetual-user-health/scripts/calculate_health_score.py /app/skills/analyze-perpetual-user-health/scripts/calculate_health_score.py
+# One ENV per line: the Evervault CLI's Dockerfile parser rejects an ENV
+# continued over several lines ("Incomplete instruction found").
+ENV DRYRUN_RELEASE_TAG=${DRYRUN_RELEASE_TAG}
+ENV DRYRUN_CONFIG_COMMITMENT=${DRYRUN_CONFIG_COMMITMENT}
+ENV DRYRUN_PLATFORM=evervault
+ENV DRYRUN_KEY_MODE=nitro
+ENV DRYRUN_PRICE_SOURCE=${DRYRUN_PRICE_SOURCE}
+ENV DRYRUN_LISTEN_ADDR=0.0.0.0:8090
+ENV DRYRUN_REPO_PATH=/app
+WORKDIR /app
+# Evervault's data plane terminates TLS and forwards requests here. It runs
+# alongside the service inside the enclave, so the image keeps the default
+# user rather than the nilCC/Tinfoil image's 65532.
+EXPOSE 8090
+ENTRYPOINT ["/app/cosigner-dryrun"]

@@ -1,0 +1,33 @@
+{
+  "buildArgs": {
+    "DRYRUN_CONFIG_COMMITMENT": "0xa63b8b44f53d3a168b47147a8a38043cd169bc40cb38d9fe1961f1a0a4acf022",
+    "DRYRUN_PRICE_SOURCE": "binance-spot",
+    "DRYRUN_RELEASE_TAG": "v0.3.0",
+    "SOURCE_DATE_EPOCH": "1792491323"
+  },
+  "configCommitment": "0xa63b8b44f53d3a168b47147a8a38043cd169bc40cb38d9fe1961f1a0a4acf022",
+  "contextPaths": [
+    "shared",
+    "backend",
+    "skills/analyze-perpetual-user-health/scripts/calculate_health_score.py"
+  ],
+  "egress": [
+    "api.telegram.org",
+    "data-api.binance.vision",
+    "perps-api.orbs.network",
+    "raw.githubusercontent.com",
+    "rpcman.orbs.network"
+  ],
+  "pcrs": {
+    "hashalgorithm": "sha512_48 { .. }",
+    "pcr0": "c35e2bd6abd435230a9467b0bd7dab0dddeca388314f2d2f62658e87c3e841340e7fe0049d8d3961c408042479feca14",
+    "pcr1": "0343b056cd8485ca7890ddd833476d78460aed2aa161548e4e26bedf321726696257d623e8805f3f605946b3d8b0c6aa",
+    "pcr2": "dd3302ae917ba6c4f495d7e560377f06bf11d1268a3224400ddbbdeea15fe16d13a19d021d83e5cecefe566b0ffaf001",
+    "pcr8": "6c80b4d902dd459c758c2455f6950fd760da49c0b0f8e82197385153b72f164bca97e99fe8ad02bf4cf330c10ffe2073"
+  },
+  "platform": "evervault",
+  "priceSource": "binance-spot",
+  "replicas": 1,
+  "sourceCommit": "ce64e76a4e29b88a6da7e203b4edfbc8411164c8",
+  "tag": "v0.3.0"
+}
