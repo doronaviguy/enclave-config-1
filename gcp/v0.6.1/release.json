@@ -1,0 +1,25 @@
+{
+  "buildArgs": {
+    "AUDIT_CONFIG_COMMITMENT": "0x74273ac374a133c848b2f808c9651d30aa6b3d391299efae7176f8b1b75b1499",
+    "AUDIT_GCP_SECRETS": "AUDIT_SECRET_CONFIG=projects/stunning-choir-314214/secrets/cosigner-config-v0-6-1/versions/latest,AUDIT_SECRET_TELEGRAM_BOT_TOKEN=projects/stunning-choir-314214/secrets/cosigner-telegram-bot-token/versions/latest",
+    "AUDIT_GCP_WORKLOAD_PROVIDER": "//iam.googleapis.com/projects/688756383580/locations/global/workloadIdentityPools/cosigner-pool/providers/cosigner-attestation",
+    "AUDIT_MODES": "light,level1,lane-finance,transitions",
+    "AUDIT_PRICE_SOURCE": "binance-futures",
+    "AUDIT_RELEASE_TAG": "v0.6.1",
+    "SOURCE_DATE_EPOCH": "1793017124"
+  },
+  "configCommitment": "0x74273ac374a133c848b2f808c9651d30aa6b3d391299efae7176f8b1b75b1499",
+  "contextPaths": [
+    "shared",
+    "backend",
+    "skills/analyze-perpetual-user-health/scripts/calculate_health_score.py"
+  ],
+  "debug": false,
+  "image": "asia-northeast1-docker.pkg.dev/stunning-choir-314214/cosigner/cosigner-audit",
+  "imageDigest": "sha256:29046924c2191ebb9a02bfcc77e81e766e860e4119dae0fd3636688db8e7476e",
+  "platform": "gcp",
+  "priceSource": "binance-futures",
+  "sourceCommit": "9a5d73bbe96e2cff496391dbcee40b108c643961",
+  "tag": "v0.6.1",
+  "workloadPool": "cosigner-pool"
+}
