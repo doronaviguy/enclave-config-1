@@ -1,0 +1,64 @@
+# Co-signer dry-run image for Google Confidential Space.
+#
+# The Confidential Space attestation token names this image's exact digest,
+# so everything the digest covers is attested: the binary, the scorer and
+# every ENV below. The measured settings (release tag, sealed-settings
+# commitment, platform, key mode, price source, audit modes, and which Secret
+# Manager versions are read through which Workload Identity provider) are
+# baked in as build args: one tag = one image = one digest = one attested key.
+#
+# deploy-gcp.sh builds from a context it stages with `git archive` at a clean
+# commit (shared/, backend/ and the scorer only), with SOURCE_DATE_EPOCH set
+# to the commit time and timestamps rewritten, so anyone can rebuild the same
+# tree with the same build args and compare digests.
+#
+# Secrets (DRYRUN_SECRET_CONFIG, DRYRUN_SECRET_TELEGRAM_BOT_TOKEN) are not in
+# the image: the binary reads them from Secret Manager at boot with a
+# federated token that IAM grants only to this image's digest. The binary
+# refuses DRYRUN_SECRET_CONFIG unless it matches the measured commitment.
+
+# golang:1.25.6-bookworm on the build host's platform, cross-compiling a static
+# linux/amd64 binary: Confidential VMs are x86-64.
+FROM --platform=$BUILDPLATFORM golang@sha256:f4490d7b261d73af4543c46ac6597d7d101b6e1755bcdd8c5159fda7046b6b3e AS build
+ARG SOURCE_DATE_EPOCH=0
+WORKDIR /src
+COPY shared/go.mod shared/go.sum ./shared/
+COPY backend/go.mod backend/go.sum ./backend/
+RUN cd backend && GOWORK=off GOFLAGS=-mod=readonly go mod download
+COPY shared/ ./shared/
+COPY backend/ ./backend/
+RUN cd backend && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOWORK=off GOFLAGS=-mod=readonly go build -trimpath -buildvcs=false -ldflags="-s -w -buildid=" -o /out/cosigner-dryrun ./cmd/cosigner-dryrun && touch -d "@${SOURCE_DATE_EPOCH}" /out/cosigner-dryrun
+
+# python:3.12.11-slim-bookworm (the deterministic scorer is standard-library
+# only), pinned to amd64.
+FROM --platform=linux/amd64 python@sha256:519591d6871b7bc437060736b9f7456b8731f1499a57e22e6c285135ae657bf7
+ARG DRYRUN_RELEASE_TAG
+ARG DRYRUN_CONFIG_COMMITMENT
+ARG DRYRUN_PRICE_SOURCE=binance-futures
+ARG DRYRUN_AUDIT_MODES=light
+ARG DRYRUN_GCP_WORKLOAD_PROVIDER
+ARG DRYRUN_GCP_SECRETS
+COPY --from=build /out/cosigner-dryrun /app/cosigner-dryrun
+COPY skills/analyze-perpetual-user-health/scripts/calculate_health_score.py /app/skills/analyze-perpetual-user-health/scripts/calculate_health_score.py
+ENV DRYRUN_RELEASE_TAG=${DRYRUN_RELEASE_TAG} \
+    DRYRUN_CONFIG_COMMITMENT=${DRYRUN_CONFIG_COMMITMENT} \
+    DRYRUN_PLATFORM=gcp \
+    DRYRUN_KEY_MODE=confidential-space \
+    DRYRUN_PRICE_SOURCE=${DRYRUN_PRICE_SOURCE} \
+    DRYRUN_AUDIT_MODES=${DRYRUN_AUDIT_MODES} \
+    DRYRUN_SECRETS_SOURCE=gcp-secret-manager \
+    DRYRUN_GCP_WORKLOAD_PROVIDER=${DRYRUN_GCP_WORKLOAD_PROVIDER} \
+    DRYRUN_GCP_SECRETS=${DRYRUN_GCP_SECRETS} \
+    DRYRUN_LISTEN_ADDR=0.0.0.0:8090 \
+    DRYRUN_REPO_PATH=/app
+WORKDIR /app
+# Launch policy, enforced by the Confidential Space launcher: the operator may
+# not override the command or any environment variable (no
+# allow_env_override label), and container logs leave the VM only on the
+# debug image.
+LABEL "tee.launch_policy.allow_cmd_override"="false"
+LABEL "tee.launch_policy.log_redirect"="debugonly"
+# The default (root) user, as in Google's samples: the launcher's token socket
+# and token file are mounted for it, and the VM runs nothing else.
+EXPOSE 8090
+ENTRYPOINT ["/app/cosigner-dryrun"]
