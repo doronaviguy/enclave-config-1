@@ -1,0 +1,39 @@
+{
+  "buildArgs": {
+    "AUDIT_CONFIG_COMMITMENT": "0x1eb684d378f59a6bdb342e8360e0aab2a22a9525948b23a8f2bfd05ed28f0618",
+    "AUDIT_MODES": "light,level1,lane-finance,transitions",
+    "AUDIT_PRICE_SOURCE": "binance-spot",
+    "AUDIT_RELEASE_TAG": "v0.9.1",
+    "GIT_COMMIT": "2366a57d10e93f3af1560f5b08a9bdb40b68864f",
+    "SOURCE_DATE_EPOCH": "1793539061"
+  },
+  "configCommitment": "0x1eb684d378f59a6bdb342e8360e0aab2a22a9525948b23a8f2bfd05ed28f0618",
+  "contextPaths": [
+    "shared",
+    "backend",
+    "tee/go.mod",
+    "tee/go.sum",
+    "tee/internal",
+    "tee/replay",
+    "skills/analyze-perpetual-user-health/scripts/calculate_health_score.py"
+  ],
+  "debug": false,
+  "egress": [
+    "api.telegram.org",
+    "data-api.binance.vision",
+    "perps-api.orbs.network",
+    "raw.githubusercontent.com",
+    "rpcman.orbs.network"
+  ],
+  "pcrs": {
+    "pcr0": "6e1ba314e03b3a5f905f1ad16e209055c352df7eadb6462755ab76f28abccb2bbc8eba2fc1686744cadeca3a1ac44580",
+    "pcr1": "0343b056cd8485ca7890ddd833476d78460aed2aa161548e4e26bedf321726696257d623e8805f3f605946b3d8b0c6aa",
+    "pcr2": "2f0fff68181b696dece95235f4f79e0b5e45a09b1bb6b3b40e0f660dcbfd6961170b7b5d0924208cdb5e6ff2dedfd7f3",
+    "pcr8": "6c80b4d902dd459c758c2455f6950fd760da49c0b0f8e82197385153b72f164bca97e99fe8ad02bf4cf330c10ffe2073"
+  },
+  "platform": "evervault",
+  "priceSource": "binance-spot",
+  "replicas": 1,
+  "sourceCommit": "2366a57d10e93f3af1560f5b08a9bdb40b68864f",
+  "tag": "v0.9.1"
+}
