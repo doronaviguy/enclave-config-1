@@ -1,0 +1,32 @@
+{
+  "buildArgs": {
+    "AUDIT_CONFIG_COMMITMENT": "0x1023548be0ad52c8e1c0b6f1809e4fc05c6c2ecfa044f0e2a915664a6c36f2e7",
+    "AUDIT_GCP_SECRETS": "AUDIT_SECRET_CONFIG=projects/stunning-choir-314214/secrets/cosigner-config-v0-9-4/versions/latest,AUDIT_SECRET_TELEGRAM_BOT_TOKEN=projects/stunning-choir-314214/secrets/cosigner-telegram-bot-token/versions/latest",
+    "AUDIT_GCP_WORKLOAD_PROVIDER": "//iam.googleapis.com/projects/688756383580/locations/global/workloadIdentityPools/cosigner-pool/providers/cosigner-attestation",
+    "AUDIT_MODES": "light,level1,lane-finance,transitions",
+    "AUDIT_PRICE_SOURCE": "binance-futures",
+    "AUDIT_RELEASE_TAG": "v0.9.4",
+    "GIT_COMMIT": "673e69ddc9ecd5081cfa7e50a1db25a40f83f880",
+    "SOURCE_DATE_EPOCH": "1793620513",
+    "TEE_CODE_HASH": "code-b189db1ffb64ef66996517296d10221688901793"
+  },
+  "configCommitment": "0x1023548be0ad52c8e1c0b6f1809e4fc05c6c2ecfa044f0e2a915664a6c36f2e7",
+  "contextPaths": [
+    "shared",
+    "backend",
+    "tee/go.mod",
+    "tee/go.sum",
+    "tee/internal",
+    "tee/replay",
+    "skills/analyze-perpetual-user-health/scripts/calculate_health_score.py"
+  ],
+  "debug": false,
+  "image": "asia-northeast1-docker.pkg.dev/stunning-choir-314214/cosigner/cosigner-audit",
+  "imageDigest": "sha256:ca7206e31e31c34c1b79cae35fc1a4f1d89d4003a01d72eca115060518b07e54",
+  "platform": "gcp",
+  "priceSource": "binance-futures",
+  "sourceCommit": "673e69ddc9ecd5081cfa7e50a1db25a40f83f880",
+  "tag": "v0.9.4",
+  "teeCodeHash": "code-b189db1ffb64ef66996517296d10221688901793",
+  "workloadPool": "cosigner-pool"
+}
